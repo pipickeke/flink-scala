@@ -18,7 +18,7 @@ object LogAnalysis {
         val prop = new Properties()
         prop.setProperty("bootstrap.servers", "master:9092")
         prop.setProperty("group.id", "kafka-flink-consumer")
-        prop.setProperty("auto.offset.reset", "latest")
+        prop.setProperty("auto.offset.reset", "earliest")
 
         //创建kafka数据源
         val topic = "test_001"

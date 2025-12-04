@@ -1,14 +1,20 @@
 package com.example.flink.project_3
 
+import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 
 
-case class View(user: String, url: String, timestamp: Long)
-object MapDemo {
+// 自定义 MapFunction 类
+class ViewToUserUrlMapFunction extends MapFunction[View, (String, String)] {
+    override def map(view: View): (String, String) = {
+        (view.user, view.url)
+    }
+}
+
+object FunctionDemo {
 
     def main(args: Array[String]): Unit = {
-
         val env = StreamExecutionEnvironment.getExecutionEnvironment
         val dataStream: DataStream[View] = env.fromCollection(
             List(
@@ -18,8 +24,10 @@ object MapDemo {
             )
         )
 
-        val mapDataStream = dataStream.map(view => (view.user, view.url))
-        mapDataStream.print()
+        // 使用自定义的 Function Class 进行 map 操作
+        val mappedStream = dataStream.map(new ViewToUserUrlMapFunction())
+        mappedStream.print()
         env.execute()
     }
+
 }

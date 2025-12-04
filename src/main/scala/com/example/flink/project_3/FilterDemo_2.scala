@@ -3,13 +3,10 @@ package com.example.flink.project_3
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 
-
-case class View(user: String, url: String, timestamp: Long)
-object MapDemo {
-
+object FilterDemo_2 {
     def main(args: Array[String]): Unit = {
-
         val env = StreamExecutionEnvironment.getExecutionEnvironment
+
         val dataStream: DataStream[View] = env.fromCollection(
             List(
                 View("Tom", "/index.html", 1000L),
@@ -18,8 +15,11 @@ object MapDemo {
             )
         )
 
-        val mapDataStream = dataStream.map(view => (view.user, view.url))
-        mapDataStream.print()
+        // 只保留 timestamp > 2000 的记录
+        val filteredStream = dataStream.filter(view => view.timestamp > 2000)
+
+        // 打印过滤后的 View 对象
+        filteredStream.print()
         env.execute()
     }
 }

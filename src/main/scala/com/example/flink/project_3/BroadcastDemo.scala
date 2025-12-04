@@ -3,13 +3,12 @@ package com.example.flink.project_3
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
 
-
-case class View(user: String, url: String, timestamp: Long)
-object MapDemo {
+object BroadcastDemo {
 
     def main(args: Array[String]): Unit = {
 
         val env = StreamExecutionEnvironment.getExecutionEnvironment
+
         val dataStream: DataStream[View] = env.fromCollection(
             List(
                 View("Tom", "/index.html", 1000L),
@@ -18,8 +17,13 @@ object MapDemo {
             )
         )
 
-        val mapDataStream = dataStream.map(view => (view.user, view.url))
-        mapDataStream.print()
+        // 使用 broadcast 算子：将每条数据广播到下游所有并行任务
+        val broadcastedStream = dataStream.broadcast
+
+        broadcastedStream.map(view => s"Broadcasted: ${view.user} -> ${view.url} (sent to ALL)")
+            .print()
+
         env.execute()
     }
+
 }
